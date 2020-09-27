@@ -1,5 +1,5 @@
 /**
- * 使用compare_exchange_weak实现支持并发访问的stack
+ * 使用compare_exchange_weak实现支持并发stack的push动作
  */
 
 #include <atomic>
