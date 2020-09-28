@@ -12,6 +12,8 @@ RAIIWaitThread.cpp: RAII编程方式wait线程，线程所有权转移，线程�
 threadSafeStack.cpp: 使用互斥元实现一个线程安全的stack，支持empty，push，pop。
 lockMultiMutex.cpp: 同时锁定多个锁，减少死锁的风险。
 lazyInitialize.cpp: “使用互斥元”，“二次检查锁定”（有数据竞争的风险，不推荐），“call-once”用法，“局部静态变量”多种方法保护lazy-initialization。
+recursiveMutex.cpp: 递归锁（可重入锁）的使用方法。
+sharedMutex.cpp: 使用boost库中的共享锁实现读写锁。
 ```
 
 
