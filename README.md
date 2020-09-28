@@ -10,6 +10,8 @@ RAIIWaitThread.cpp: RAII编程方式wait线程，线程所有权转移，线程�
 ## sharedDataBetweenThreads-线程之间安全共享数据
 ```
 threadSafeStack.cpp: 使用互斥元实现一个线程安全的stack，支持empty，push，pop。
+lockMultiMutex.cpp: 同时锁定多个锁，减少死锁的风险。
+lazyInitialize.cpp: “使用互斥元”，“二次检查锁定”（有数据竞争的风险，不推荐），“call-once”用法，“局部静态变量”多种方法保护lazy-initialization。
 ```
 
 
