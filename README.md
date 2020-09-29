@@ -16,6 +16,11 @@ recursiveMutex.cpp: 递归锁（可重入锁）的使用方法。
 sharedMutex.cpp: 使用boost库中的共享锁实现读写锁。
 ```
 
+## syncConcurrent-同步并发操作
+```
+threadSafeQueue.cpp: 使用条件变量实现一个线程安全的队列
+```
+
 
 ## atomic-原子变量相关编程
 ```
