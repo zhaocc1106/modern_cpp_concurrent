@@ -16,6 +16,7 @@ c++并发编程
 [threadSafeQueue.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/syncConcurrent/threadSafeQueue.cpp): 使用条件变量实现一个线程安全的队列。<br>
 [futrueAsync.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/syncConcurrent/futureAsync.cpp): future实现异步动作，不同policy的用法。<br>
 [packagedTask.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/syncConcurrent/packagedTask.cpp): 通过packagedTask封裝task（包含可调用对象和future）并在线程之间传递任务。<br>
+[promise.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/syncConcurrent/promise.cpp): promise/future对用法。
 
 ## atomic-原子变量相关编程
 [atomicFlagLock.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/atomic/atomicFlagLock.cpp): 使用atomicFlag实现一个自旋锁。<br>
