@@ -19,7 +19,7 @@ c++并发编程
 [promise.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/syncConcurrent/promise.cpp): promise/future对用法。<br>
 [sharedFuture.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/syncConcurrent/sharedFuture.cpp): 使用sharedFuture实现多个线程同时等待一个线程。<br>
 [spuriousWake.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/syncConcurrent/spuriousWake.cpp): 虚假唤醒测试。<br>
-
+[time.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/syncConcurrent/time.cpp): 时间段与时间点与时钟节拍。<br>
 
 ## atomic-原子变量相关编程
 [atomicFlagLock.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/atomic/atomicFlagLock.cpp): 使用atomicFlag实现一个自旋锁。<br>
