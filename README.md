@@ -21,7 +21,7 @@ c++并发编程
 [spuriousWake.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/syncConcurrent/spuriousWake.cpp): 虚假唤醒测试。<br>
 [time.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/syncConcurrent/time.cpp): 时间段与时间点与时钟节拍。<br>
 
-## atomic-原子变量相关编程
+## atomic-原子变量与内存时序
 [atomicFlagLock.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/atomic/atomicFlagLock.cpp): 使用atomicFlag实现一个自旋锁。<br>
 [casStack.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/atomic/casStack.cpp): 使用compare_exchange_weak实现一个并发安全stack push动作。<br>
 [sequentialConsistenOrdering.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/atomic/sequentialConsistenOrdering.cpp): 使用sequence consistent memory order保证多个原子变量的访问顺序(happens before)。<br>
