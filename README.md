@@ -20,6 +20,8 @@ c++并发编程
 [sharedFuture.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/syncConcurrent/sharedFuture.cpp): 使用sharedFuture实现多个线程同时等待一个线程。<br>
 [spuriousWake.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/syncConcurrent/spuriousWake.cpp): 虚假唤醒测试。<br>
 [time.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/syncConcurrent/time.cpp): 时间段与时间点与时钟节拍。<br>
+[funcParam.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/syncConcurrent/funcParam.cpp): 函数名当做参数的几种方式。<br>
+[parallelQuickSort.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/syncConcurrent/parallelQuickSort.cpp): 使用future async实现一个并行快排。<br>
 
 ## atomic-原子变量与内存时序
 [atomicFlagLock.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/atomic/atomicFlagLock.cpp): 使用atomicFlag实现一个自旋锁。<br>
