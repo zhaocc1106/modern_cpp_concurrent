@@ -34,3 +34,4 @@ c++并发编程
 [funcParam.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/c11NewCharacteristic/funcParam.cpp): 函数名当做参数的几种方式，std::function与std::bind用法。<br>
 [allConstructions.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/c11NewCharacteristic/allConstructions.cpp): 六种构造函数实现方式，包括移动构造和移动赋值函数。<br>
 [staticCastAndDynamicCast.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/c11NewCharacteristic/staticCastAndDynamicCast.cpp): static_cast与dynamic_cast区别。<br>
+[variadicTemplates.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/c11NewCharacteristic/variadicTemplates.cpp): 可变模板参数的使用，包括可变模板参数函数和可变模板参数类以及参数包的展开方式。<br>
