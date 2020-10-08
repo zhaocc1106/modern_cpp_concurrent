@@ -6,7 +6,7 @@
 #include <functional>
 
 template<typename Function>
-void function(const Function &func, // 函数模板
+void function(Function &&func, // 万能引用
               const std::function<void(int)> &func2, // std::function
               void (*func3)(int) // 函数指针
 ) {
