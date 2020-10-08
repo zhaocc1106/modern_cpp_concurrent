@@ -31,6 +31,6 @@ c++并发编程
 [memBarriers.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/atomic/memBarriers.cpp): 使用内存屏障保障非原子变量的访问顺序。<br>
 
 ## c11一些新特性
-[funcParam.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/c11NewCharacteristic/funcParam.cpp): 函数名当做参数的几种方式。<br>
-[allConstructions.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/c11NewCharacteristic/allConstructions.cpp): 六种构造函数实现方式。<br>
+[funcParam.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/c11NewCharacteristic/funcParam.cpp): 函数名当做参数的几种方式，std::function与std::bind用法。<br>
+[allConstructions.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/c11NewCharacteristic/allConstructions.cpp): 六种构造函数实现方式，包括移动构造和移动赋值函数。<br>
 [staticCastAndDynamicCast.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/c11NewCharacteristic/staticCastAndDynamicCast.cpp): static_cast与dynamic_cast区别。<br>
