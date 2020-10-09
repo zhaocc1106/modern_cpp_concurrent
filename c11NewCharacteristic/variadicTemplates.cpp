@@ -123,6 +123,73 @@ struct MakeIndexes<0, Indexes...> {
     typedef IndexSeq<Indexes...> type;
 };
 
+/* -------------------------------------可变模板参数简化代码写法------------------------------------- */
+
+/* 简化一个工厂类写法 */
+
+class ProductA {
+public:
+    int x;
+
+    ProductA(int x_) : x(x_) {}
+};
+
+class ProductB {
+public:
+    int x;
+    int y;
+
+    ProductB(int x_, int y_) : x(x_), y(y_) {}
+};
+
+class ProductC {
+public:
+    int x;
+    int y;
+    int z;
+
+    ProductC(int x_, int y_, int z_) : x(x_), y(y_), z(z_) {}
+};
+
+template<typename T>
+class Factory {
+public:
+    template<typename... Args>
+    static T *instance(Args... args) {
+        return new T(args...);
+    }
+};
+
+/* 简化一个委托类的写法 */
+
+template<typename T, typename R, typename... Args>
+class MyDelegate {
+    T *m_t; // 指向一个对象
+    R (T::*m_f)(Args...); // 指向一个函数，函数参数是可变模板参数，返回值是R类型
+public:
+    MyDelegate(T *t, R (T::*f)(Args...)) : m_t(t), m_f(f) {}
+
+    R operator()(Args &&... args) { // 实现()，代表是一个函数对象
+        return (m_t->*m_f)(std::forward<Args>(args)...); // 完成函数参数的转发
+    }
+};
+
+template<typename T, typename R, typename... Args>
+MyDelegate<T, R, Args...> create_delegate(T *t, R (T::*f)(Args...)) {
+    return MyDelegate<T, R, Args...>(t, f);
+}
+
+class A {
+public:
+    void func1(int i) {
+        std::cout << i << std::endl;
+    }
+
+    void func2(int i, int j) {
+        std::cout << i + j << std::endl;
+    }
+};
+
 int main() {
     f(1); // sizeof为1
     f(1, 'a'); // sizeof为2
@@ -140,7 +207,25 @@ int main() {
 
     // 通过继承方式展开参数包
     using T = MakeIndexes<3>::type;
-    std::cout <<typeid(T).name() << std::endl;
+    std::cout << typeid(T).name() << std::endl;
+
+    // 可变模板参数简化工厂类实现代码
+    ProductA *a_instance = Factory<ProductA>::instance(1);
+    ProductB *b_instance = Factory<ProductB>::instance(1, 2);
+    ProductC *c_instance = Factory<ProductC>::instance(1, 2, 3);
+    std::cout << a_instance->x << std::endl;
+    std::cout << b_instance->x << ", " << b_instance->y << std::endl;
+    std::cout << c_instance->x << ", " << c_instance->y << ", " << c_instance->z << std::endl;
+    delete a_instance;
+    delete b_instance;
+    delete c_instance;
+
+    /* 简化一个委托类的写法 */
+    A a;
+    auto delegate1 = create_delegate(&a, &A::func1);
+    auto delegate2 = create_delegate(&a, &A::func2);
+    delegate1(1);
+    delegate2(1, 2);
 }
 
 
