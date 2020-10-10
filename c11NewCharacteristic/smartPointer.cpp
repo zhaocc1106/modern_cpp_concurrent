@@ -15,6 +15,10 @@ public:
         cout << "construction." << endl;
     }
 
+    Node(const Node& other) {
+        cout << "copy construction." << endl;
+    }
+
     ~Node() {
         cout << "destruction." << endl;
     }
@@ -28,7 +32,8 @@ int main() {
     weak_ptr<Node> weakPtr;
     {
         shared_ptr<Node> p1(new Node);
-        shared_ptr<Node> p2(new Node);
+        Node node;
+        shared_ptr<Node> p2(std::make_shared<Node>(node)); // make_shared会创建一个新的object
         p1->next = p2;
         p2->next = p1;
         cout << p1.use_count() << endl; // 输出为1，因为next是弱指针

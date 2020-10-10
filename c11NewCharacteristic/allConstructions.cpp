@@ -82,8 +82,8 @@ int main() {
     Temp temp; // 默认构造函数
     Temp temp1(temp); // 拷贝构造函数
     temp1 = temp; // 赋值函数
-    vector <Temp> v(1); // 拷贝构造函数
-    v.push_back(move(Temp())); // 一个默认构造函数，两个移动构造函数，第一个移动构造函数时push_back新的，第二个时移动之前旧的
+    vector<Temp> v(1); // 拷贝构造函数
+    v.emplace_back(Temp()); // 一个默认构造函数，两个移动构造函数，第一个移动构造函数时push_back新的，第二个扩容vector后是移动之前旧的
     Temp temp2(move(Temp("123"))); // 移动构造函数
     Temp temp3("123"); // 默认构造函数
     Temp temp4 = temp3; // 拷贝构造函数
