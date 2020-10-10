@@ -1,5 +1,5 @@
 # idea
-.idea/*
+*.idea*
 
 # cmake build
-cmake-build-debug/*
+*cmake-build-debug*

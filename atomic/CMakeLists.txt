@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.15)
-project(concurrent_learn)
+project(atomic)
 
 set(CMAKE_CXX_STANDARD 14)
 
+include_directories(include)
 
-add_executable(concurrent_learn c11NewCharacteristic/rightValueAndMove.cpp)
+add_executable(atomic memBarriers.cpp)
 
 # boost begin
 set(Boost_DETAILED_FAILURE_MSG ON)
@@ -14,7 +15,7 @@ set(BOOST_INCLUDEDIR ${BOOST_ROOT})
 set(BOOST_LIBRARYDIR ${BOOST_ROOT}/stage/lib)
 find_package(Boost COMPONENTS REQUIRED)
 include_directories(${BOOST_ROOT})
-target_link_libraries(concurrent_learn ${Boost_LIBRARIES})
+target_link_libraries(atomic ${Boost_LIBRARIES})
 # boost end
 
 # 添加-fno-elide-constructors编译参数能够防止编译对构造函数进行优化
