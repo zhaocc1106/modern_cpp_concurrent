@@ -31,6 +31,8 @@ public:
 };
 
 int main() {
+    std::cout << "hardware_concurrency: " << std::thread::hardware_concurrency() << std::endl;
+
     std::thread a(do_some_work, 1); // 简单函数
     std::thread b{backgroundThread(), 2}; // 函数对象
     std::thread c([](int i) { std::cout << "lambda function i: " << i << std::endl; }, 3); // lambda构造函数对象
@@ -42,6 +44,7 @@ int main() {
     a.join();
     b.join();
     c.join();
+    d.join();
 
     std::cout << t.val << std::endl;
 }
