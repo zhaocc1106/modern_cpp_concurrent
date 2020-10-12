@@ -7,4 +7,4 @@ include_directories(include)
 
 add_executable(threadPool
         include/thread_safe_queue.hpp
-        src/test.cpp)
+        src/test.cpp include/threads_joiner.hpp src/simple_thread_pool.cpp include/simple_thread_pool.h)

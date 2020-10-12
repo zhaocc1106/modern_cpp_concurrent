@@ -32,6 +32,7 @@ c++并发编程
 
 ## threadPool-线程池
 [thread_safe_queue.hpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/threadPool/include/thread_safe_queue.hpp): 使用链表以及细粒度锁实现一个高并发的线程安全队列。<br>
+[threads_joiner.hpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/threadPool/include/threads_joiner.hpp): 实现一个线程容器的joiner，在析构时能够join所有的线程。<br>
 
 ## c11一些新特性
 [funcParam.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/c11NewCharacteristic/funcParam.cpp): 函数名当做参数的几种方式，std::function与std::bind用法。<br>

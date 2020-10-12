@@ -9,6 +9,7 @@
 
 #include "thread_safe_queue.hpp"
 
+/* 测试线程安全队列 */
 void test_thread_safe_queue() {
     zhaocc::ThreadSafeQueue<int> thread_safe_queue;
 
@@ -50,6 +51,47 @@ void test_thread_safe_queue() {
     thread4.join();
 }
 
+/* 测试线程安全队列中存放的对象的析构顺序 */
+void test_destruction_order() {
+    class TestClass {
+    private:
+        int val;
+    public:
+        TestClass() : val(0) {
+        }
+
+        explicit TestClass(int val_) : val(val_) {
+            std::cout << "TestClass(int)" << std::endl;
+        }
+
+        TestClass(const TestClass& other) {
+            std::cout << "TestClass(const TestClass&)" << std::endl;
+            val = other.val;
+        }
+
+        TestClass(TestClass&& other) noexcept {
+            std::cout << "TestClass(TestClass&&)" << std::endl;
+            val = other.val;
+        }
+
+        ~TestClass() {
+            std::cout << "~TestClass() val: " << val << std::endl;
+        }
+    };
+
+    zhaocc::ThreadSafeQueue<TestClass> thread_safe_queue;
+    thread_safe_queue.push(TestClass(1)); // 调用了一次构造函数构造临时对象，一次移动构造函数构造shared_ptr指向的对象，一次析构函数析构掉临时对象
+    std::cout << std::endl;
+    thread_safe_queue.push(TestClass(2)); // 调用了一次构造函数构造临时对象，一次移动构造函数构造shared_ptr指向的对象，一次析构函数析构掉临时对象
+    std::cout << std::endl;
+    thread_safe_queue.push(TestClass(3)); // 调用了一次构造函数构造临时对象，一次移动构造函数构造shared_ptr指向的对象，一次析构函数析构掉临时对象
+    std::cout << std::endl;
+
+    // 析构顺序为 ~TestClass() val: 3， ~TestClass() val: 2， ~TestClass() val: 1。
+    // 在析构unique_ptr<Node>时会先析构对象的next属性，所以析构的顺序和队列存放的顺序是逆的。
+}
+
 int main() {
-    test_thread_safe_queue();
+    // test_thread_safe_queue();
+    test_destruction_order();
 }
