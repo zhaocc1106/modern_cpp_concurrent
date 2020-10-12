@@ -8,6 +8,7 @@
 #include <cassert>
 
 #include "thread_safe_queue.hpp"
+#include "simple_thread_pool.hpp"
 
 /* 测试线程安全队列 */
 void test_thread_safe_queue() {
@@ -91,7 +92,22 @@ void test_destruction_order() {
     // 在析构unique_ptr<Node>时会先析构对象的next属性，所以析构的顺序和队列存放的顺序是逆的。
 }
 
+/* 测试简单的线程池 */
+void test_simple_thread_pool() {
+    zhaocc::SimpleThreadPool thread_pool;
+
+    for (int i = 0; i < std::thread::hardware_concurrency() + 5; i++) { // 有concurrency个任务被立即执行，剩余的5个延时1s有工作线程空闲下来才会执行
+        thread_pool.submit([i]() {
+            std::cout << "[thread " << std::this_thread::get_id() << "] i: " << i << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        });
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+}
+
 int main() {
     // test_thread_safe_queue();
-    test_destruction_order();
+    // test_destruction_order();
+    test_simple_thread_pool();
 }
