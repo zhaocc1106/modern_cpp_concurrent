@@ -9,6 +9,7 @@
 
 #include "thread_safe_queue.hpp"
 #include "simple_thread_pool.hpp"
+#include "futured_thread_pool.hpp"
 
 /* 测试线程安全队列 */
 void test_thread_safe_queue() {
@@ -106,8 +107,33 @@ void test_simple_thread_pool() {
     std::this_thread::sleep_for(std::chrono::milliseconds(10000));
 }
 
+/* 测试futured thread pool */
+void test_futured_thread_pool() {
+    zhaocc::FuturedThreadPool thread_pool;
+    unsigned work_count = std::thread::hardware_concurrency() + 5;
+
+    std::vector<std::future<int>> futures;
+    futures.reserve(work_count);
+    for (int i = 0; i < work_count; i++) { // 有concurrency个任务被立即执行，剩余的5个延时1s有工作线程空闲下来才会执行
+        futures.emplace_back(
+                thread_pool.submit([i]() -> int {
+                    std::cout << "[thread " << std::this_thread::get_id() << "] i: " << i << std::endl;
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                    return i;
+                })
+        );
+    }
+
+    // future阻塞等待所有任务完成
+    for (auto& future : futures) {
+        int ret = future.get();
+        std::cout << "future return: " << ret << std::endl;
+    }
+}
+
 int main() {
     // test_thread_safe_queue();
     // test_destruction_order();
-    test_simple_thread_pool();
+    // test_simple_thread_pool();
+    test_futured_thread_pool();
 }
