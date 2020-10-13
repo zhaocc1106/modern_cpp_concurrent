@@ -62,6 +62,7 @@ namespace zhaocc {
 
             // 禁止拷贝
             FunctionWrapper(const FunctionWrapper&) = delete;
+
             FunctionWrapper& operator=(const FunctionWrapper&) = delete;
         };
 
@@ -73,11 +74,27 @@ namespace zhaocc {
         void worker_thread_func(); // 工作线程执行的函数
 
     public:
-        FuturedThreadPool(); // 构造函数
+
+        /**
+         * 构造函数
+         * @param concurrent_count: 线程池中并发线程数量
+         */
+        explicit FuturedThreadPool(unsigned concurrent_count=std::thread::hardware_concurrency());
         ~FuturedThreadPool(); // 析构函数
 
+        /**
+         * 提交任务
+         * @tparam FuncType: 函数类型
+         * @param f: 可调用对象
+         * @return 与可调用对象返回值相关联的future
+         */
         template<typename FuncType>
-        std::future<typename std::result_of<FuncType()>::type> submit(FuncType&& f); // 提交任务
+        std::future<typename std::result_of<FuncType()>::type> submit(FuncType&& f);
+
+        /**
+         * 提供一个接口可以在调用者线程上执行任务
+         */
+        void run_pending_task();
     };
 
     void FuturedThreadPool::worker_thread_func() {
@@ -95,9 +112,8 @@ namespace zhaocc {
         }
     }
 
-    FuturedThreadPool::FuturedThreadPool() : done(false),
+    FuturedThreadPool::FuturedThreadPool(unsigned concurrent_count) : done(false),
                                              threads_joiner(threads) { // 将threads交付给threads_joiner管理，在线程池任务结束时等待所有线程
-        unsigned const concurrent_count = std::thread::hardware_concurrency(); // 获取硬件支持的并发数
         try {
             for (unsigned i = 0; i < concurrent_count; i++) {
                 threads.emplace_back(&FuturedThreadPool::worker_thread_func, this); // 创建工作线程
@@ -121,6 +137,16 @@ namespace zhaocc {
 
         work_queue.push(std::move(task));
         return future_res;
+    }
+
+    void FuturedThreadPool::run_pending_task() {
+        FunctionWrapper task;
+
+        if (work_queue.try_pop(task)) {
+            task(); // 当前有任务直接执行
+        } else {
+            std::this_thread::yield(); // 当前无任务则调度出去
+        }
     }
 }
 

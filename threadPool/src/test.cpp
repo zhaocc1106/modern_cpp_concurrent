@@ -10,6 +10,7 @@
 #include "thread_safe_queue.hpp"
 #include "simple_thread_pool.hpp"
 #include "futured_thread_pool.hpp"
+#include "parallel_quick_sort.hpp"
 
 /* 测试线程安全队列 */
 void test_thread_safe_queue() {
@@ -131,9 +132,21 @@ void test_futured_thread_pool() {
     }
 }
 
+/* 测试并行quick sort */
+void test_parallel_quick_sort() {
+    zhaocc::ParallelQuickSort<int> parallel_quick_sort(2); // 测试 2(线程池中并发线程数量) + 1(本线程) 个线程来并发排序
+    std::list<int> arr{10, 11, 12, 4, 6, 2, 1, 3, 4, 6, 7, 9, 0};
+    std::list<int> res = parallel_quick_sort.do_sort(arr);
+    for (int& i : res) {
+        std::cout << i << ", ";
+    }
+    std::cout << std::endl;
+}
+
 int main() {
     // test_thread_safe_queue();
     // test_destruction_order();
     // test_simple_thread_pool();
-    test_futured_thread_pool();
+    // test_futured_thread_pool();
+    test_parallel_quick_sort();
 }

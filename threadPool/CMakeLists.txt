@@ -10,4 +10,5 @@ add_executable(threadPool
         src/test.cpp
         include/threads_joiner.hpp
         include/simple_thread_pool.hpp
-        include/futured_thread_pool.hpp)
+        include/futured_thread_pool.hpp
+        include/parallel_quick_sort.hpp)
