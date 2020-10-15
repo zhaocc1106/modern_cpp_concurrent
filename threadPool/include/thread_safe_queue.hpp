@@ -154,6 +154,12 @@ namespace zhaocc {
         // 在tail锁解锁后进行唤醒
         data_cond.notify_one();
     }
+
+    template<typename T>
+    bool ThreadSafeQueue<T>::empty() {
+        std::lock_guard<std::mutex> lock(head_mutex);
+        return head == get_tail();
+    }
 }
 
 

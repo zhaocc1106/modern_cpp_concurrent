@@ -13,10 +13,10 @@
 
 namespace zhaocc {
 
-    template<typename T>
+    template<typename T, typename ThreadPoolType>
     class ParallelQuickSort {
     private:
-        FuturedThreadPool thread_pool;
+        ThreadPoolType thread_pool; // 线程池类型作为模板参数传入
 
     public:
 
@@ -30,8 +30,8 @@ namespace zhaocc {
         std::list<T> do_sort(std::list<T>& chunk_data);
     };
 
-    template<typename T>
-    std::list<T> ParallelQuickSort<T>::do_sort(std::list<T>& chunk_data) {
+    template<typename T, typename ThreadPoolType>
+    std::list<T> ParallelQuickSort<T, ThreadPoolType>::do_sort(std::list<T>& chunk_data) {
         if (chunk_data.empty()) {
             return chunk_data;
         }
@@ -48,7 +48,7 @@ namespace zhaocc {
 
         // 递归排序小区域部分，并且放到线程池中来做
         std::future<std::list<T>> sorted_lower_future = thread_pool.submit(
-                std::bind(&ParallelQuickSort<T>::do_sort, this, std::move(lower_part)) // 使用bind函数绑定局部参数
+                std::bind(&ParallelQuickSort<T, ThreadPoolType>::do_sort, this, std::move(lower_part)) // 使用bind函数绑定局部参数
         );
 
         // 递归排序大区域部分，在本线程中作

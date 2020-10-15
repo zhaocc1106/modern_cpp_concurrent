@@ -11,6 +11,7 @@
 #include "simple_thread_pool.hpp"
 #include "futured_thread_pool.hpp"
 #include "parallel_quick_sort.hpp"
+#include "multi_queue_thread_pool.hpp"
 
 /* 测试线程安全队列 */
 void test_thread_safe_queue() {
@@ -111,11 +112,11 @@ void test_simple_thread_pool() {
 /* 测试futured thread pool */
 void test_futured_thread_pool() {
     zhaocc::FuturedThreadPool thread_pool;
-    unsigned work_count = std::thread::hardware_concurrency() + 5;
+    unsigned task_count = std::thread::hardware_concurrency() + 5;
 
     std::vector<std::future<int>> futures;
-    futures.reserve(work_count);
-    for (int i = 0; i < work_count; i++) { // 有concurrency个任务被立即执行，剩余的5个延时1s有工作线程空闲下来才会执行
+    futures.reserve(task_count);
+    for (int i = 0; i < task_count; i++) { // 有concurrency个任务被立即执行，剩余的5个延时1s有工作线程空闲下来才会执行
         futures.emplace_back(
                 thread_pool.submit([i]() -> int {
                     std::cout << "[thread " << std::this_thread::get_id() << "] i: " << i << std::endl;
@@ -134,8 +135,46 @@ void test_futured_thread_pool() {
 
 /* 测试并行quick sort */
 void test_parallel_quick_sort() {
-    zhaocc::ParallelQuickSort<int> parallel_quick_sort(2); // 测试 2(线程池中并发线程数量) + 1(本线程) 个线程来并发排序
+    zhaocc::ParallelQuickSort<int, zhaocc::FuturedThreadPool> parallel_quick_sort(
+            2); // 测试 2(线程池中并发线程数量) + 1(本线程) 个线程来并发排序
     std::list<int> arr{10, 11, 12, 4, 6, 2, 1, 3, 4, 6, 7, 9, 0};
+    std::list<int> res = parallel_quick_sort.do_sort(arr);
+    for (int& i : res) {
+        std::cout << i << ", ";
+    }
+    std::cout << std::endl;
+}
+
+/* 测试多任务队列线程池 */
+void test_multi_queue_thread_pool() {
+    /* 所有的工作线程从线程池主任务队列获取任务 */
+    zhaocc::MultiQueueThreadPool thread_pool(2);
+
+    std::vector<std::future<int>> futures;
+    unsigned task_count = 5;
+    futures.reserve(task_count);
+    for (int i = 0; i < task_count; i++) {
+        futures.emplace_back(
+                thread_pool.submit([i]() -> int { // 因为所有任务都是从非工作线程提交的，所以线程池只有主任务队列有任务，两个工作线程都从线程池的主任务队列中获取任务
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                    return i;
+                })
+        );
+    }
+
+    // future阻塞等待所有任务完成
+    for (auto& future : futures) {
+        int ret = future.get();
+        std::cout << "future return: " << ret << std::endl;
+    }
+
+    std::cout << std::endl << std::endl;
+
+    /* 并行快排使用多任务队列线程池来并发，可以看到工作线程即有“从主任务中获取任务”，又有“从当前工作线程任务队列中获取任务”，又有“从其他工作线程的任务队列中窃取任务” */
+    zhaocc::ParallelQuickSort<int, zhaocc::MultiQueueThreadPool> parallel_quick_sort(
+            3); // 测试 3(线程池中并发线程数量) + 1(本线程) 个线程来并发排序
+    std::list<int> arr{10, 11, 12, 4, 6, 2, 1, 3, 4, 6, 7, 9, 0, 10, 11, 12, 4, 6, 2, 1, 3, 4, 6, 7, 9, 0, 10, 11, 12,
+                       4, 6, 2, 1, 3, 4, 6, 7, 9, 0, 10, 11, 12, 4, 6, 2, 1, 3, 4, 6, 7, 9, 0};
     std::list<int> res = parallel_quick_sort.do_sort(arr);
     for (int& i : res) {
         std::cout << i << ", ";
@@ -148,5 +187,6 @@ int main() {
     // test_destruction_order();
     // test_simple_thread_pool();
     // test_futured_thread_pool();
-    test_parallel_quick_sort();
+    // test_parallel_quick_sort();
+    test_multi_queue_thread_pool();
 }
