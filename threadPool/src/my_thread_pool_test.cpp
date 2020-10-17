@@ -1,11 +1,13 @@
 /**
- * 测试使用
+ * 测试基于c11手写的thread pool
  */
 
 #include <iostream>
 #include <thread>
 #include <chrono>
 #include <cassert>
+#include <boost/asio.hpp>
+#include <boost/asio/thread_pool.hpp>
 
 #include "thread_safe_queue.hpp"
 #include "simple_thread_pool.hpp"
@@ -183,10 +185,10 @@ void test_multi_queue_thread_pool() {
 }
 
 int main() {
-    // test_thread_safe_queue();
-    // test_destruction_order();
-    // test_simple_thread_pool();
-    // test_futured_thread_pool();
-    // test_parallel_quick_sort();
+    test_thread_safe_queue();
+    test_destruction_order();
+    test_simple_thread_pool();
+    test_futured_thread_pool();
+    test_parallel_quick_sort();
     test_multi_queue_thread_pool();
 }
