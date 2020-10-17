@@ -6,8 +6,6 @@
 #include <thread>
 #include <chrono>
 #include <cassert>
-#include <boost/asio.hpp>
-#include <boost/asio/thread_pool.hpp>
 
 #include "thread_safe_queue.hpp"
 #include "simple_thread_pool.hpp"

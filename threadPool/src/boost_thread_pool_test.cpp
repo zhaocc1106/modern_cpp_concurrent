@@ -7,16 +7,17 @@
 
 void task1() {
     std::this_thread::sleep_for(std::chrono::seconds(1));
-    std::cout << "func1 - " << std::chrono::duration_cast<std::chrono::seconds>(
-            std::chrono::system_clock::now().time_since_epoch()).count() << std::endl;
+    std::cout << "[thread-" << std::this_thread::get_id() << "] func1 - "
+              << std::chrono::duration_cast<std::chrono::seconds>(
+                      std::chrono::system_clock::now().time_since_epoch()).count() << std::endl;
 }
 
 void task2() {
-    std::cout << "func2" << std::endl;
+    std::cout << "[thread-" << std::this_thread::get_id() << "] func2" << std::endl;
 }
 
 int task3() {
-    std::cout << "func3" << std::endl;
+    std::cout << "[thread-" << std::this_thread::get_id() << "] func3" << std::endl;
     return 0;
 }
 
@@ -29,7 +30,20 @@ void test_asio_thread_pool() {
     pool.join();
 }
 
+void task_handler(boost::system::error_code error_code) {
+    std::cout << "[thread-" << std::this_thread::get_id() << "] task_handler error_code: " << error_code << std::endl;
+}
+
+/* 使用deadline timer实现线程池中执行定时任务 */
+void test_timer_task() {
+    boost::asio::thread_pool pool(1);
+    boost::asio::dispatch(pool, task2);
+    boost::asio::deadline_timer timer(pool.get_executor(), boost::posix_time::seconds(1));
+    timer.async_wait(task_handler);
+    pool.join();
+}
 
 int main() {
     test_asio_thread_pool();
+    test_timer_task();
 }
