@@ -5,14 +5,28 @@
 #include <iostream>
 #include <functional>
 
+class FactorClass {
+private:
+    const int _a;
+
+public:
+    explicit FactorClass(int a) : _a(a) {}
+
+    void operator()(int b) {
+        std::cout << "FactorClass: " << (_a + b) << std::endl;
+    }
+};
+
 template<typename Function>
-void function(Function &&func, // 万能引用
-              const std::function<void(int)> &func2, // std::function
-              void (*func3)(int) // 函数指针
+void function(Function&& func, // 万能引用
+              const std::function<void(int)>& func2, // std::function
+              void (* func3)(int), // 函数指针
+              FactorClass&& func4 // 仿函数作为参数
 ) {
     func(10);
     func2(100);
     func3(1000);
+    func4(1000);
 }
 
 void function2(int i) {
@@ -46,14 +60,14 @@ public:
     void g() { std::cout << "g(" << this->value << ")\n"; }
 };
 
-void apply(Foo2 *foo1, Foo2 *foo2,
+void apply(Foo2* foo1, Foo2* foo2,
            void (Foo2::*fun)()) { // 成员函数指针
     (foo1->*fun)();  // call fun on the object foo1
     (foo2->*fun)();  // call fun on the object foo2
 }
 
 int main() {
-    function(function2, function3, function4);
+    function(function2, function3, function4, FactorClass(5));
 
     // std::bind绑定普通函数，v1表示占位符，普通函数名作为实参，会隐式转换成函数指针
     auto fn_half = std::bind(my_devide, std::placeholders::_1, 2);
