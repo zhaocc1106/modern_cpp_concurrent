@@ -58,6 +58,8 @@ class MyClass {
 int main(int argc, char *argv[]) {
   ThreadPoolTimerContainer thread_pool_timer_container(4);
 
+  thread_pool_timer_container.AddTimer(Func1, nullptr, 1000, true); // Timer should be started firstly.
+
   std::thread th1([&]() {
     thread_pool_timer_container.Start();
     int64_t timer_id = thread_pool_timer_container.AddTimer(Func1, nullptr, 1000, true);

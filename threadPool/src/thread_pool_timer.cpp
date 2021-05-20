@@ -64,6 +64,13 @@ void ThreadPoolTimerContainer::InternalTimerCb(boost::system::error_code err, in
 
 int64_t ThreadPoolTimerContainer::AddTimer(std::function<void(void *)> timer_cb, void *args, int expired_ms,
                                            bool repeated) {
+  std::unique_lock<std::mutex> state_lock(state_mutex_);
+  if (state_ == STOPPED) {
+    std::cout << "ThreadPoolTimerContainer should be started firstly." << std::endl;
+    return false;
+  }
+  state_lock.unlock();
+
   auto timer_ptr = std::make_unique<boost::asio::deadline_timer>(io_service_, boost::posix_time::millisec(expired_ms));
   auto timer_id = (int64_t) timer_ptr.get(); // Use timer_ptr pointer as timer id.
 
@@ -82,6 +89,13 @@ int64_t ThreadPoolTimerContainer::AddTimer(std::function<void(void *)> timer_cb,
 }
 
 bool ThreadPoolTimerContainer::CancelTimer(int64_t timer_id) {
+  std::unique_lock<std::mutex> state_lock(state_mutex_);
+  if (state_ == STOPPED) {
+    std::cout << "ThreadPoolTimerContainer should be started firstly." << std::endl;
+    return false;
+  }
+  state_lock.unlock();
+
   std::lock_guard<std::mutex> timers_lock(timers_mutex_);
   if (timers_.count(timer_id) <= 0) {
     std::cout << "Timer id [" << timer_id << "] not existed." << std::endl;
