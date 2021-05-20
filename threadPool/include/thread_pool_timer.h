@@ -94,6 +94,7 @@ class ThreadPoolTimerContainer {
   /**
    * Internal callback of timer.
    * @param err: error code, if cancel, error code will be boost::asio::error::operation_aborted.
+   * @param timer_id: The timer id of current timer callback.
    */
   void InternalTimerCb(boost::system::error_code err, int64_t timer_id);
 
