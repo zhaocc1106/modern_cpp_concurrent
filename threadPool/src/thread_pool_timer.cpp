@@ -4,27 +4,28 @@
 // Date   2021/5/19 23:02
 // Brief  One timer container which timer callback run in thread pool.
 
-#include <iostream>
 #include <memory>
 
-#include "thread_pool_timer.h"
+#include "glog/logging.h"
+#include "common/util/thread_pool_timer_container.h"
 
-ThreadPoolTimerContainer::ThreadPoolTimerContainer(int worker_th_count) : worker_th_count_(worker_th_count),
-                                                                          io_work_(io_service_), state_(STOPPED) {
+common::ThreadPoolTimerContainer::ThreadPoolTimerContainer(int worker_th_count) : state_(STOPPED),
+                                                                                  worker_th_count_(worker_th_count),
+                                                                                  io_work_(io_service_) {
 }
 
-bool ThreadPoolTimerContainer::Start() {
+bool common::ThreadPoolTimerContainer::Start() {
   std::lock_guard<std::mutex> state_lock(state_mutex_);
   if (state_ == STARTED) {
-    std::cout << "ThreadPoolTimerContainer have been started." << std::endl;
-    return true;
+    LOG(WARNING) << "ThreadPoolTimerContainer have been started.";
+    return false;
   }
 
   for (int i = 0; i < worker_th_count_; i++) {
     thread_group_.create_thread([this]() {
-      std::cout << "Thread-[" << boost::this_thread::get_id() << "] Start\n";
+      LOG(INFO) << "Thread-[" << boost::this_thread::get_id() << "] Start\n";
       this->io_service_.run();
-      std::cout << "Thread-[" << boost::this_thread::get_id() << "] Finish\n";
+      LOG(INFO) << "Thread-[" << boost::this_thread::get_id() << "] Finish\n";
     });
   }
 
@@ -32,17 +33,17 @@ bool ThreadPoolTimerContainer::Start() {
   return true;
 }
 
-void ThreadPoolTimerContainer::InternalTimerCb(boost::system::error_code err, int64_t timer_id) {
-  // std::cout << "InternalTimerCb thread_id: " << boost::this_thread::get_id() << ", err: " << err.message()
-  //           << ", timer_id: " << timer_id << std::endl;
+void common::ThreadPoolTimerContainer::InternalTimerCb(boost::system::error_code err, int64_t timer_id) {
+  // LOG(INFO) << "InternalTimerCb thread_id: " << boost::this_thread::get_id() << ", err: " << err.message()
+  //           << ", timer_id: " << timer_id;
   if (err) { // Timer have been canceled.
-    std::cout << "Timer [" << timer_id << "] have been canceled." << std::endl;
+    LOG(WARNING) << "Timer [" << timer_id << "] have been canceled.";
     return;
   }
 
   std::lock_guard<std::mutex> timers_lock(timers_mutex_);
   if (timers_.count(timer_id) <= 0) {
-    std::cout << "Timer id [" << timer_id << "] not existed." << std::endl;
+    LOG(WARNING) << "Timer id [" << timer_id << "] not existed.";
     return;
   }
 
@@ -62,11 +63,11 @@ void ThreadPoolTimerContainer::InternalTimerCb(boost::system::error_code err, in
   }
 }
 
-int64_t ThreadPoolTimerContainer::AddTimer(std::function<void(void *)> timer_cb, void *args, int expired_ms,
-                                           bool repeated) {
+int64_t common::ThreadPoolTimerContainer::AddTimer(std::function<void(void *)> timer_cb, void *args, int expired_ms,
+                                                   bool repeated) {
   std::unique_lock<std::mutex> state_lock(state_mutex_);
   if (state_ == STOPPED) {
-    std::cout << "ThreadPoolTimerContainer should be started firstly." << std::endl;
+    LOG(WARNING) << "ThreadPoolTimerContainer should be started firstly.";
     return false;
   }
   state_lock.unlock();
@@ -88,31 +89,31 @@ int64_t ThreadPoolTimerContainer::AddTimer(std::function<void(void *)> timer_cb,
   return timer_id;
 }
 
-bool ThreadPoolTimerContainer::CancelTimer(int64_t timer_id) {
+bool common::ThreadPoolTimerContainer::CancelTimer(int64_t timer_id) {
   std::unique_lock<std::mutex> state_lock(state_mutex_);
   if (state_ == STOPPED) {
-    std::cout << "ThreadPoolTimerContainer should be started firstly." << std::endl;
+    LOG(WARNING) << "ThreadPoolTimerContainer should be started firstly.";
     return false;
   }
   state_lock.unlock();
 
   std::lock_guard<std::mutex> timers_lock(timers_mutex_);
   if (timers_.count(timer_id) <= 0) {
-    std::cout << "Timer id [" << timer_id << "] not existed." << std::endl;
+    LOG(WARNING) << "Timer id [" << timer_id << "] not existed.";
     return false;
   }
 
-  std::cout << "CancelTimer timer_id: " << timer_id << std::endl;
+  LOG(INFO) << "CancelTimer timer_id: " << timer_id;
   timers_[timer_id]->timer_ptr_->cancel_one();
   timers_.erase(timer_id);
   return true;
 }
 
-bool ThreadPoolTimerContainer::Stop() {
+bool common::ThreadPoolTimerContainer::Stop() {
   std::lock_guard<std::mutex> state_lock(state_mutex_);
   if (state_ == STOPPED) {
-    std::cout << "ThreadPoolTimerContainer have been stopped." << std::endl;
-    return true;
+    LOG(WARNING) << "ThreadPoolTimerContainer have been stopped.";
+    return false;
   }
 
   io_service_.stop();
@@ -120,4 +121,3 @@ bool ThreadPoolTimerContainer::Stop() {
   state_ = STOPPED;
   return true;
 }
-
