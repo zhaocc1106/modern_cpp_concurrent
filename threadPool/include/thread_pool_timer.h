@@ -3,9 +3,23 @@
 // Author zhaochaochao@corp.netease.com
 // Date   2021/5/18 20:55
 // Brief  One timer container which timer callback run in thread pool.
+//
+// Use like:
+// {
+//   ThreadPoolTimerContainer thread_pool_timer_container(4); // Create one thread pool timer container with 4 worker thread.
+//   thread_pool_timer_container.Start(); // Start thread pool timer container.
+//   int64_t timer_id = thread_pool_timer_container.AddTimer(Func1, // function name.
+//                                                           nullptr, // args.
+//                                                           1000, // expired time(ms).
+//                                                           true); // If repeated.
+//   ***
+//   thread_pool_timer_container.CancelTimer(timer_id); // Cancel one timer in container.
+//   ***
+//   thread_pool_timer_container.Stop(); // Stop thread pool timer container.
+// }
 
-#ifndef THREADPOOL_INCLUDE_THREAD_POOL_TIMER_H_
-#define THREADPOOL_INCLUDE_THREAD_POOL_TIMER_H_
+#ifndef PREDICTION_COMMON_UTIL_THREAD_POOL_TIMER_CONTAINER_H_
+#define PREDICTION_COMMON_UTIL_THREAD_POOL_TIMER_CONTAINER_H_
 
 #include <functional>
 #include <unordered_map>
@@ -23,6 +37,8 @@
     ClassName(const ClassName&) = delete; \
     ClassName& operator=(const ClassName&) = delete;
 #endif
+
+namespace common {
 
 class ThreadPoolTimerContainer {
  public:
@@ -44,27 +60,27 @@ class ThreadPoolTimerContainer {
         : timer_ptr_(std::move(timer_ptr)), timer_cb_(std::move(timer_cb)), args_(args), expired_ms_(expired_ms),
           repeated_(repeated) {}
 
-    ~TimerItem() {
-      std::cout << "Timer Item destruction function." << std::endl;
-    }
+    // ~TimerItem() {
+    //   std::cout << "Timer Item destruction function." << std::endl;
+    // }
   };
 
   /**
    * The constructor function.
    * @param worker_th_count: The worker thread count in thread pool.
    */
-  explicit ThreadPoolTimerContainer(int worker_th_count = 2);
+  explicit ThreadPoolTimerContainer(int worker_th_count = 1);
 
   /**
    * Start the thread pool timer.
    *
    * @return if start successfully.
    */
-  bool Start(void);
+  bool Start();
 
   /**
    * Add one new timer into container.
-   * @param timer_cb: Timer callback function like void func(void* args).
+   * @param timer_cb: Timer callback function like void func(void* args). Can be func pointer, std::bind, std::func, or lambda.
    * @param args: The args of timer callback.
    * @param expired_ms: The expired duration(ms).
    * @param repeat: If timer will be repeated.
@@ -84,7 +100,7 @@ class ThreadPoolTimerContainer {
    * Stop the thread pool timer.
    * @return If stop successfully.
    */
-  bool Stop(void);
+  bool Stop();
 
   ~ThreadPoolTimerContainer() = default;
 
@@ -108,4 +124,6 @@ class ThreadPoolTimerContainer {
   std::mutex timers_mutex_; // Used to protect timers_ object in multi threads.
 };
 
-#endif //THREADPOOL_INCLUDE_THREAD_POOL_TIMER_H_
+}; // namespace common.
+
+#endif //PREDICTION_COMMON_UTIL_THREAD_POOL_TIMER_CONTAINER_H_
