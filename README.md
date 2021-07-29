@@ -37,8 +37,10 @@ c++并发编程
 [futured_thread_pool.hpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/threadPool/include/futured_thread_pool.hpp): 基于simple_thread_pool开发的可以等待任务结果的线程池。<br>
 [parallel_quick_sort.hpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/threadPool/include/parallel_quick_sort.hpp): 基于futured_thread_pool开发的并行快排算法，可以控制并发数量。<br>
 [multi_queue_thread_pool.hpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/threadPool/include/multi_queue_thread_pool.hpp): 每个工作线程都有一个自己的“任务队列”的并且支持“任务窃取”的线程池，能够使得工作线程的并发性更高。<br>
+[thread_pool_timer.h](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/threadPool/include/thread_pool_timer.h)：基于boost线程池实现一个timer，timer callback跑在线程池中，并且支持循环timer。<br>
 [my_thread_pool_test.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/threadPool/src/my_thread_pool_test.cpp): 测试手写的thread pool。<br>
 [boost_thread_pool_test.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/threadPool/src/boost_thread_pool_test.cpp): 测试常用的boost thread pool。<br>
+
 
 ## c11NewCharacteristic-c11一些新特性
 [funcParam.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/c11NewCharacteristic/funcParam.cpp): 函数名当做参数的几种方式，std::function与std::bind用法。<br>
