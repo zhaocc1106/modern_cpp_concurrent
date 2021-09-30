@@ -8,7 +8,7 @@
 #include <chrono>
 #include <ctime>
 
-#include "thread_pool_timer.h"
+#include "thread_pool_timer_container.h"
 
 static std::string GenerateTimeStr() {
   /*Generate time str such as 2017-08-05 09:22:55.726*/
@@ -22,25 +22,29 @@ static std::string GenerateTimeStr() {
   return std::string(time_str);
 }
 
-static void Func1(void *args) {
+static void Func1(void* args) {
+  std::cout << __func__ << " begin thread_id: " << std::this_thread::get_id() << ", current time: "
+            << GenerateTimeStr()
+            << std::endl;
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::cout << __func__ << " end thread_id: " << std::this_thread::get_id() << ", current time: "
+            << GenerateTimeStr()
+            << std::endl;
+}
+
+static void Func2(void* args) {
   std::cout << __func__ << " thread_id: " << std::this_thread::get_id() << ", current time: "
             << GenerateTimeStr()
             << std::endl;
 }
 
-static void Func2(void *args) {
+static void Func3(void* args) {
   std::cout << __func__ << " thread_id: " << std::this_thread::get_id() << ", current time: "
             << GenerateTimeStr()
             << std::endl;
 }
 
-static void Func3(void *args) {
-  std::cout << __func__ << " thread_id: " << std::this_thread::get_id() << ", current time: "
-            << GenerateTimeStr()
-            << std::endl;
-}
-
-static void Func4(void *args) {
+static void Func4(void* args) {
   std::cout << __func__ << " thread_id: " << std::this_thread::get_id() << ", current time: "
             << GenerateTimeStr()
             << std::endl;
@@ -48,37 +52,41 @@ static void Func4(void *args) {
 
 class MyClass {
  public:
-  void Func5(void *args) {
+  void Func5(void* args) {
     std::cout << __func__ << " thread_id: " << std::this_thread::get_id() << ", current time: "
               << GenerateTimeStr()
               << std::endl;
   }
 };
 
-int main(int argc, char *argv[]) {
-  ThreadPoolTimerContainer thread_pool_timer_container(4);
+int main(int argc, char* argv[]) {
+  common::ThreadPoolTimerContainer thread_pool_timer_container(4);
 
-  thread_pool_timer_container.AddTimer(Func1, nullptr, 1000, true); // Timer should be started firstly.
+  // Timer should be started firstly.
+  thread_pool_timer_container.AddTimer(Func1, nullptr, 1000, nullptr, common::ThreadPoolTimerContainer::MS, true);
 
   std::thread th1([&]() {
     thread_pool_timer_container.Start();
-    int64_t timer_id = thread_pool_timer_container.AddTimer(Func1, nullptr, 1000, true);
+    int64_t timer_id1 = thread_pool_timer_container.AddTimer(Func1, nullptr, 1000, nullptr,
+                                                            common::ThreadPoolTimerContainer::MS, true);
     std::this_thread::sleep_for(std::chrono::seconds(1));
-    thread_pool_timer_container.CancelTimer(timer_id);
-    std::this_thread::sleep_for(std::chrono::seconds(6));
+    thread_pool_timer_container.CancelTimer(timer_id1);
+    std::this_thread::sleep_for(std::chrono::seconds(10));
     thread_pool_timer_container.Stop();
   });
 
   std::thread th2([&]() {
     thread_pool_timer_container.Start();
-    int64_t timer_id = thread_pool_timer_container.AddTimer(Func2, nullptr, 1000, true);
+    int64_t timer_id =
+        thread_pool_timer_container.AddTimer(Func2, nullptr, 1000, nullptr, common::ThreadPoolTimerContainer::MS, true);
     std::this_thread::sleep_for(std::chrono::seconds(6));
     thread_pool_timer_container.Stop();
   });
 
   std::thread th3([&]() {
     thread_pool_timer_container.Start();
-    int64_t timer_id = thread_pool_timer_container.AddTimer(Func3, nullptr, 1000, true);
+    int64_t timer_id =
+        thread_pool_timer_container.AddTimer(Func3, nullptr, 1000, nullptr, common::ThreadPoolTimerContainer::MS, true);
     std::this_thread::sleep_for(std::chrono::seconds(2));
     thread_pool_timer_container.CancelTimer(timer_id);
     std::this_thread::sleep_for(std::chrono::seconds(6));
@@ -87,7 +95,8 @@ int main(int argc, char *argv[]) {
 
   std::thread th4([&]() {
     thread_pool_timer_container.Start();
-    int64_t timer_id = thread_pool_timer_container.AddTimer(Func4, nullptr, 1000, true);
+    int64_t timer_id =
+        thread_pool_timer_container.AddTimer(Func4, nullptr, 1000, nullptr, common::ThreadPoolTimerContainer::MS, true);
     std::this_thread::sleep_for(std::chrono::seconds(6));
     thread_pool_timer_container.Stop();
   });
@@ -99,6 +108,8 @@ int main(int argc, char *argv[]) {
         thread_pool_timer_container.AddTimer(std::bind(&MyClass::Func5, &c, std::placeholders::_1),
                                              nullptr,
                                              1000,
+                                             nullptr,
+                                             common::ThreadPoolTimerContainer::MS,
                                              false);
     std::this_thread::sleep_for(std::chrono::seconds(3));
     thread_pool_timer_container.CancelTimer(timer_id);

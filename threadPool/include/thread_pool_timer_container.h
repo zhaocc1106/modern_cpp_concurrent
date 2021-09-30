@@ -10,8 +10,10 @@
 //   thread_pool_timer_container.Start(); // Start thread pool timer container.
 //   int64_t timer_id = thread_pool_timer_container.AddTimer(Func1, // function name.
 //                                                           nullptr, // args.
-//                                                           1000, // expired time(ms).
-//                                                           true); // If repeated.
+//                                                           1000, // expired duration.
+//                                                           nullptr, // if specify expired duration ptr, the expired duration can be changed dynamically.
+//                                                           common::ThreadPoolTimerContainer::S, // duration precision is second.
+//                                                           true); // if repeated.
 //   ***
 //   thread_pool_timer_container.CancelTimer(timer_id); // Cancel one timer in container.
 //   ***
@@ -48,17 +50,26 @@ class ThreadPoolTimerContainer {
     STOPPED
   };
 
+  // Precision of time.
+  enum TimePrecision {
+    MS, // Mill second.
+    S, // Second.
+    MINUTE // Minute.
+  };
+
   struct TimerItem {
     std::unique_ptr<boost::asio::deadline_timer> timer_ptr_; // The timer obj ptr.
-    std::function<void(void *)> timer_cb_; // Timer callback function like void func(void* args).
-    void *args_; // The args of timer callback.
-    int expired_ms_; // The expired duration(ms).
+    std::function<void(void*)> timer_cb_; // Timer callback function like void func(void* args).
+    void* args_; // The args of timer callback.
+    int expired_; // The expired duration.
+    int* expired_ptr_; // The expired duration ptr. Which can be changed by external.
+    TimePrecision precision_; // Precision of expired duration.
     bool repeated_; // If timer is repeated.
 
-    TimerItem(std::unique_ptr<boost::asio::deadline_timer> timer_ptr, std::function<void(void *)> timer_cb, void *args,
-              int expired_ms, bool repeated)
-        : timer_ptr_(std::move(timer_ptr)), timer_cb_(std::move(timer_cb)), args_(args), expired_ms_(expired_ms),
-          repeated_(repeated) {}
+    TimerItem(std::unique_ptr<boost::asio::deadline_timer> timer_ptr, std::function<void(void*)> timer_cb, void* args,
+              int expired, int* expired_ptr, TimePrecision precision, bool repeated)
+        : timer_ptr_(std::move(timer_ptr)), timer_cb_(std::move(timer_cb)), args_(args), expired_(expired),
+          expired_ptr_(expired_ptr), precision_(precision), repeated_(repeated) {}
 
     // ~TimerItem() {
     //   std::cout << "Timer Item destruction function." << std::endl;
@@ -82,12 +93,15 @@ class ThreadPoolTimerContainer {
    * Add one new timer into container.
    * @param timer_cb: Timer callback function like void func(void* args). Can be func pointer, std::bind, std::func, or lambda.
    * @param args: The args of timer callback.
-   * @param expired_ms: The expired duration(ms).
+   * @param expired: The expired duration.
+   * @param expired_ptr: The expired duration pointer. When not null, will use expired_ptr preferentially. The
+   * expired duration can be changed by external.
    * @param repeat: If timer will be repeated.
    *
    * @return timer id which can used when cancel this timer.
    */
-  int64_t AddTimer(std::function<void(void *)> timer_cb, void *args, int expired_ms, bool repeated);
+  int64_t AddTimer(std::function<void(void*)> timer_cb, void* args, int expired, int* expired_ptr,
+                   TimePrecision precision, bool repeated);
 
   /**
    * Cancel one timer.
@@ -102,7 +116,7 @@ class ThreadPoolTimerContainer {
    */
   bool Stop();
 
-  ~ThreadPoolTimerContainer() = default;
+  ~ThreadPoolTimerContainer();
 
  private:
   DISALLOW_COPY_AND_ASSIGN(ThreadPoolTimerContainer);
@@ -113,6 +127,21 @@ class ThreadPoolTimerContainer {
    * @param timer_id: The timer id of current timer callback.
    */
   void InternalTimerCb(boost::system::error_code err, int64_t timer_id);
+
+  /**
+   * Get expired mill seconds.
+   * @param precision: Time precision.
+   * @param duration: Duration.
+   * @return Expired mill seconds.
+   */
+  inline boost::posix_time::millisec GetExpiredMs(TimePrecision precision, int duration) {
+    switch (precision) {
+      case MS:return boost::posix_time::millisec((long long) (duration));
+      case S:return boost::posix_time::millisec((long long) (duration * 1e3));
+      case MINUTE:return boost::posix_time::millisec((long long) (duration * 1e3 * 60));
+      default:return boost::posix_time::millisec((long long) (0));
+    }
+  }
 
   ContainerState state_; // Current container state.
   std::mutex state_mutex_; // Used to protect state_ object in multi threads.
