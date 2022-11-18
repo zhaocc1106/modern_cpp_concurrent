@@ -1,5 +1,5 @@
-# c++并发编程
-c++并发编程
+# 现代c++并发编程
+现代c++并发编程
 
 ## manageThread-线程基础管理
 [startThread.cpp](https://github.com/zhaocc1106/cpp_concurrent_program/blob/master/manageThread/startThread.cpp): 线程的几种启动方式，参数传递。<br>
