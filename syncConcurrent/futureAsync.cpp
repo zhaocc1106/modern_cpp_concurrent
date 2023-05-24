@@ -13,27 +13,28 @@ int func(std::string &str) {
 
 int main() {
  std::string str("hello future");
- // 第一个参数policy可以为launch::async和launch::deferred，async代表func在单独线程运行，deferred代表func在显示调用get或wait时才会跑
- // 如果没有设置policy，则行为是未知的，是否在单独线程运行未知，是否推迟执行未知。
+ // std::async第一个参数policy可以为launch::async或者launch::deferred，
+ // async代表func在单独线程立即运行
+ // deferred代表func在显示调用get或wait（不包括wait_for）时才会跑，但是都是在同一个线程跑。
+
+
+ // 如果没有设置policy，则其实std::launch::async | std::launch::deferred，即行为是未知的，可能异步执行，也可能是推迟同步执行。
  std::future<int> res = std::async(func, std::ref(str));
- // wait_for，一般会使得future async被执行，这里status为std::future_status::ready，相应的下一行代码会输出str转换后的值
- // 但是如果在硬件层面面临负载很重时，执行线程可能会同调用线程是一个线程，这时wait_for会阻塞调用线程。
+ // wait_for，一般来说会使得future async被执行，这里status为std::future_status::ready，相应的下一行代码会输出str转换后的值
+ // 但是如果在硬件层面面临负载很重时，执行线程可能会是推迟同步执行，即同调用线程是一个线程，这时wait_for会阻塞调用线程。
  std::cout << "status: " << (int) res.wait_for(std::chrono::milliseconds(100)) << std::endl;
  std::cout << str << std::endl; // 这时异步动作已完成，str为修改后的值
  std::cout << res.get() << "--[" << std::this_thread::get_id() << "]--" << str << std::endl;
-
  std::cout << std::endl;
+
 
  std::string str2("hello future");
  // 创建异步动作，policy为launch::deferred，deferred代表func在显示调用get或wait时才会跑，但是都是在同一个线程跑，如thread::get_id打印
  std::future<int> res2 = std::async(std::launch::deferred, func, std::ref(str2));
-
  // 如果wait_for，future async因为是在同一个线程执行，所以无法被执行
  // std::cout << "status: " << (int) res.wait_for(std::chrono::milliseconds(100)) << std::endl;
-
  std::cout << str2 << std::endl; // 这时异步动作没跑，所以str为原来的值
  std::cout << res2.get() << "--[" << std::this_thread::get_id() << "]--" << str2 << std::endl; // get动作使得当前线程等待异步动作结束，所以str值被修改
-
  std::cout << std::endl;
 
 
