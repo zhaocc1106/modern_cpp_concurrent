@@ -41,6 +41,7 @@ int main() {
     X x;
     std::thread d(&X::do_some_work, &x, std::ref(t)); // 类构造函数方式，显示说明传递的参数是引用类型
 
+    // 注意任何std::thread在析构时必须是unjoinable状态，可以执行join或者detach让thread进入unjoinable状态。
     a.join();
     b.join();
     c.join();
